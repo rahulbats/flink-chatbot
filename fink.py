@@ -168,16 +168,16 @@ def run_query(query):
             data=results.json().get('results').get('data')
         dataRows=[]    
         for dataRow in data:
-            match dataRow.get('op'):
-                case 0:
+            op = dataRow.get('op')
+            if op is 0:
                     dataRows.append(dataRow.get('row'))
-                case 1:
+            elif op is 1:
                     dataRows.pop()
-                case 2:
+            elif op is  2:
                     dataRows.append(dataRow.get('row'))        
-                case 3:
+            elif op is  3:
                     dataRows.pop()
-                case _:
+            else:
                     dataRows.append(dataRow.get('row'))
                 
         
