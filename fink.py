@@ -7,11 +7,11 @@ from langchain_core.output_parsers import StrOutputParser
 import time
 import streamlit as st
 import json
-
+import traceback
 
 #load_dotenv()
 
-
+ 
 
 if(st.session_state.get("authentication_status") is None):
     st.session_state.authentication_status=False
@@ -59,7 +59,7 @@ else:
 
 
 
-template = """Based on the table schema below, write a flink SQL query that would answer the user's question, limit the query to 10 rows if the query does not have it.Creation timestamp is represented by a hidden row $rowtime which is of datatype TIMESTAMP_LTZ(3). So if you want to compare it to a string you are sending , you will have to cast the string to TIMESTAMP_LTZ(3) . Don't use columns in where condition if the table does not have the column. Dont use asias names which are keywords like count.  
+template = """Based on the table schema below, write a flink SQL query that would answer the user's question, limit the query to 10 rows if the query does not have it.Creation timestamp is represented by a hidden row $rowtime which is of datatype TIMESTAMP_LTZ(3). So if you want to compare it to a string you are sending , you will have to cast the string to TIMESTAMP_LTZ(3) . Don't use columns in where condition if the table does not have the column. Dont use alias names which are keywords like count. Use the exact table names from schema. 
 {schema}
 
 Question: {question}
@@ -159,30 +159,35 @@ def run_query(query):
 
         results =requests.get(getFlinkStatementsURL()+"/user-flink-query/results?page_size=100",auth=(confluentApiKey,confluentApiSecret))
         data=results.json().get('results').get('data')
-            
-        if data is None or len(data) == 0:
-            next=results.json().get('metadata').get('next')
+        next=results.json().get('metadata').get('next')
+        counter=0
+        dataRows=[]  
+        while counter<10  and next is not None:
+            print("trying next page"+next)
             results =requests.get(next,auth=(confluentApiKey, confluentApiSecret))
             data=results.json().get('results').get('data')
-        dataRows=[]    
-        for dataRow in data:
-            op = dataRow.get('op')
-            if op is 0:
-                    dataRows.append(dataRow.get('row'))
-            elif op is 1:
-                    dataRows.pop()
-            elif op is  2:
-                    dataRows.append(dataRow.get('row'))        
-            elif op is  3:
-                    dataRows.pop()
-            else:
-                    dataRows.append(dataRow.get('row'))
+            next=results.json().get('metadata').get('next')
+            counter+=1
+            if data is not None and len(data) > 0:
+                 for dataRow in data:
+                    op = dataRow.get('op')
+                    if op == 0:
+                            dataRows.append(dataRow.get('row'))
+                    elif op == 1:
+                            dataRows.pop()
+                    elif op ==  2:
+                            dataRows.append(dataRow.get('row'))        
+                    elif op ==  3:
+                            dataRows.pop()
+                    else:
+                            dataRows.append(dataRow.get('row'))
+
+       
                 
-        
         return {"columns":columns, "data":dataRows}
     except Exception as e:
         print(f"got execption for query {query}")
-        print(e)
+        print(traceback.format_exc())
         return {"columns":None, "data":None}    
 
 
