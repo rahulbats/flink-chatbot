@@ -1,7 +1,0 @@
-[project]
-name = "flink-chatbot"
-version = "2024.3.5"
-dependencies = [
-  "streamlit",
-  "langchain"
-]
