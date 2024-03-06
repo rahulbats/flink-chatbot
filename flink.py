@@ -184,7 +184,7 @@ def run_query(query):
                             dataRows.append(dataRow.get('row'))
 
        
-                
+        requests.delete(getFlinkStatementsURL()+"/user-flink-query",auth=(confluentApiKey, confluentApiSecret))        
         return {"columns":columns, "data":dataRows}
     except Exception as e:
         print(f"got execption for query {query}")
