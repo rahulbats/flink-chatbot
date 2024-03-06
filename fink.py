@@ -1,11 +1,9 @@
-from langchain_community.utilities import SQLDatabase
 import requests
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from langchain.chat_models import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough
 import time
 import streamlit as st
 import json
