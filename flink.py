@@ -101,6 +101,7 @@ def get_schema():
 
     time.sleep(10)
     results  = requests.get(getFlinkStatementsURL()+"/show-tables/results",auth=(confluentApiKey, confluentApiSecret))
+    print(results.json())
     resultTables = [ x.get('row')[0] for x in results.json().get('results').get('data')]
 
     schema = ""
